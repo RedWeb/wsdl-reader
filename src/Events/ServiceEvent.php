@@ -2,7 +2,7 @@
 namespace GoetasWebservices\XML\WSDLReader\Events;
 
 use GoetasWebservices\XML\WSDLReader\Wsdl\Service;
-use Symfony\Component\EventDispatcher\Event;
+use GoetasWebservices\XML\WSDLReader\Events\WsdlEvent;
 
 class ServiceEvent extends WsdlEvent
 {

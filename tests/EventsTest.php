@@ -3,9 +3,10 @@ namespace GoetasWebservices\XML\WSDLReader\Tests;
 
 use GoetasWebservices\XML\WSDLReader\DefinitionsReader;
 use Jmikola\WildcardEventDispatcher\WildcardEventDispatcher;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
+use PHPUnit\Framework\TestCase;
 
-class EventsTest extends \PHPUnit_Framework_TestCase
+class EventsTest extends TestCase
 {
 
     /**
@@ -20,7 +21,7 @@ class EventsTest extends \PHPUnit_Framework_TestCase
      */
     protected $dispatcher;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dispatcher = new WildcardEventDispatcher();
         $this->reader = new DefinitionsReader(null, $this->dispatcher);
@@ -74,7 +75,7 @@ class EventsTest extends \PHPUnit_Framework_TestCase
 
         foreach ($expected as $index => $expectedData) {
             list($event, $name) = $events[$index];
-            $this->assertInstanceOf('Symfony\Component\EventDispatcher\Event', $event);
+            $this->assertInstanceOf('Symfony\Contracts\EventDispatcher\Event', $event);
             $this->assertInstanceOf('GoetasWebservices\XML\WSDLReader\Events\WsdlEvent', $event);
             $this->assertInstanceOf($expectedData[1], $event, "Event name '$expectedData[0]'");
             $this->assertEquals($expectedData[0], $name);

@@ -33,7 +33,7 @@ use GoetasWebservices\XML\XSDReader\Exception\IOException;
 use GoetasWebservices\XML\XSDReader\Schema\Schema;
 use GoetasWebservices\XML\XSDReader\SchemaReader;
 use GoetasWebservices\XML\XSDReader\Utils\UrlUtils;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -92,11 +92,6 @@ class DefinitionsReader
         return $childs;
     }
 
-    private function dispatch($eventName, Event $event)
-    {
-        ;
-    }
-
     /**
      *
      * @param Definitions $definitions
@@ -141,13 +136,13 @@ class DefinitionsReader
         ksort($functions);
         return array(
             function () use ($functions, $definitions, $node) {
-                $this->dispatcher->dispatch('definitions_start', new DefinitionsEvent($definitions, $node));
+                $this->dispatcher->dispatch(new DefinitionsEvent($definitions, $node), 'definitions_start');
                 foreach ($functions as $subFunctions) {
                     foreach ($subFunctions as $function) {
                         call_user_func($function);
                     }
                 }
-                $this->dispatcher->dispatch('definitions_end', new DefinitionsEvent($definitions, $node));
+                $this->dispatcher->dispatch(new DefinitionsEvent($definitions, $node), 'definitions_end');
             }
         );
     }
@@ -176,7 +171,7 @@ class DefinitionsReader
             list ($name, $ns) = self::splitParts($node, $node->getAttribute("type"));
             $binding->setType($definitions->findPortType($name, $ns));
 
-            $this->dispatcher->dispatch('binding', new BindingEvent($binding, $node));
+            $this->dispatcher->dispatch(new BindingEvent($binding, $node), 'binding');
             foreach ($functions as $function) {
                 call_user_func($function);
             }
@@ -204,7 +199,7 @@ class DefinitionsReader
             }
         }
         return function () use ($functions, $bindingOperation, $node) {
-            $this->dispatcher->dispatch('binding.operation', new BindingOperationEvent($bindingOperation, $node));
+            $this->dispatcher->dispatch(new BindingOperationEvent($bindingOperation, $node), 'binding.operation');
             foreach ($functions as $function) {
                 call_user_func($function);
             }
@@ -222,7 +217,7 @@ class DefinitionsReader
         }
 
         return function () use ($message, $node, $isInput) {
-            $this->dispatcher->dispatch('binding.operation.message', new BindingOperationMessageEvent($message, $node, $isInput ? 'input' : 'output'));
+            $this->dispatcher->dispatch(new BindingOperationMessageEvent($message, $node, $isInput ? 'input' : 'output'), 'binding.operation.message');
         };
     }
 
@@ -233,7 +228,7 @@ class DefinitionsReader
         $bindingOperation->addFault($fault);
 
         return function () use ($fault, $node) {
-            $this->dispatcher->dispatch('binding.operation.fault', new BindingOperationFaultEvent($fault, $node));
+            $this->dispatcher->dispatch(new BindingOperationFaultEvent($fault, $node), 'binding.operation.fault');
         };
     }
 
@@ -252,7 +247,7 @@ class DefinitionsReader
             }
         }
         return function () use ($functions, $service, $node) {
-            $this->dispatcher->dispatch('service', new ServiceEvent($service, $node));
+            $this->dispatcher->dispatch(new ServiceEvent($service, $node), 'service');
             foreach ($functions as $function) {
                 call_user_func($function);
             }
@@ -275,7 +270,7 @@ class DefinitionsReader
         }
 
         return function () use ($functions, $message, $node) {
-            $this->dispatcher->dispatch('message', new MessageEvent($message, $node));
+            $this->dispatcher->dispatch(new MessageEvent($message, $node), 'message');
             foreach ($functions as $function) {
                 call_user_func($function);
             }
@@ -291,7 +286,7 @@ class DefinitionsReader
             list ($name, $ns) = self::splitParts($node, $node->getAttribute("binding"));
             $port->setBinding($service->getDefinition()
                 ->findBinding($name, $ns));
-            $this->dispatcher->dispatch('service.port', new PortEvent($port, $node));
+            $this->dispatcher->dispatch(new PortEvent($port, $node), 'service.port');
         };
     }
 
@@ -310,7 +305,7 @@ class DefinitionsReader
             }
         }
         return function () use ($functions, $port, $node) {
-            $this->dispatcher->dispatch('portType', new PortTypeEvent($port, $node));
+            $this->dispatcher->dispatch(new PortTypeEvent($port, $node), 'portType');
             foreach ($functions as $function) {
                 call_user_func($function);
             }
@@ -339,7 +334,7 @@ class DefinitionsReader
             }
         }
         return function () use ($functions, $operation, $node) {
-            $this->dispatcher->dispatch('portType.operation', new OperationEvent($operation, $node));
+            $this->dispatcher->dispatch(new OperationEvent($operation, $node), 'portType.operation');
             foreach ($functions as $function) {
                 call_user_func($function);
             }
@@ -361,7 +356,7 @@ class DefinitionsReader
             list ($name, $ns) = self::splitParts($node, $node->getAttribute("message"));
             $param->setMessage($operation->getDefinition()
                 ->findMessage($name, $ns));
-            $this->dispatcher->dispatch('portType.operation.param', new ParamEvent($param, $node));
+            $this->dispatcher->dispatch(new ParamEvent($param, $node), 'portType.operation.param');
         };
     }
 
@@ -375,7 +370,7 @@ class DefinitionsReader
             list ($name, $ns) = self::splitParts($node, $node->getAttribute("message"));
             $fault->setMessage($operation->getDefinition()->findMessage($name, $ns));
 
-            $this->dispatcher->dispatch('portType.operation.fault', new FaultEvent($fault, $node));
+            $this->dispatcher->dispatch(new FaultEvent($fault, $node), 'portType.operation.fault');
         };
     }
 
@@ -397,7 +392,7 @@ class DefinitionsReader
                     ->getSchema()
                     ->findType($name, $ns));
             }
-            $this->dispatcher->dispatch('message.part', new MessagePartEvent($part, $node));
+            $this->dispatcher->dispatch(new MessagePartEvent($part, $node), 'message.part');
         };
     }
 
