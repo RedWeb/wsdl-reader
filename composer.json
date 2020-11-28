@@ -9,7 +9,7 @@
     }],
     "require": {
         "php": "^7.1",
-        "goetas-webservices/xsd-reader": "^0.3",
+        "goetas-webservices/xsd-reader": "@dev",
         "symfony/event-dispatcher": "^5.0"
     },
     "require-dev": {
